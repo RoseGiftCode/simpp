@@ -12,14 +12,6 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { useIsMounted } from '../hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Import walletClient and chains from walletClient.ts
-import { walletClient, chains, switchChain } from '../src/walletClient';
-import { chains as predefinedChains } from '@chain';
-
-// Import WalletConnect packages
-import { Core } from '@walletconnect/core';
-import { Web3Wallet } from '@walletconnect/web3wallet';
-
 // Import wallet configurations
 import {
   rainbowWallet,
@@ -32,6 +24,10 @@ import {
   bybitWallet,
   binanceWallet,
 } from '@rainbow-me/rainbowkit/wallets';
+
+// Import WalletConnect packages
+import SignClient from '@walletconnect/sign-client';
+import { Web3Wallet } from '@walletconnect/web3wallet';
 
 // Define WalletConnect projectId
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dce4c19a5efd3cba4116b12d4fc3689a';
@@ -62,7 +58,6 @@ const wagmiConfig = createConfig({
     137: http('https://polygon-mainnet.g.alchemy.com/v2/iUoZdhhu265uyKgw-V6FojhyO80OKfmV'),
     10: http('https://opt-mainnet.g.alchemy.com/v2/iUoZdhhu265uyKgw-V6FojhyO80OKfmV'),
     42161: http('https://arb-mainnet.g.alchemy.com/v2/iUoZdhhu265uyKgw-V6FojhyO80OKfmV'),
-    // 56: http('https://bsc-dataseed.binance.org'), // BSC mainnet
     324: http('https://zksync-mainnet.g.alchemy.com/v2/iUoZdhhu265uyKgw-V6FojhyO80OKfmV'),
   },
 });
@@ -77,7 +72,7 @@ const App = ({ Component, pageProps }: AppProps) => {
     if (isMounted) {
       const initializeWalletConnect = async () => {
         try {
-          const core = new Core({
+          const signClient = await SignClient.init({
             projectId: projectId
           });
 
@@ -89,7 +84,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           };
 
           const wallet = await Web3Wallet.init({
-            core,
+            core: signClient,
             metadata
           });
 
