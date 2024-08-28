@@ -6,31 +6,18 @@ import GithubCorner from 'react-github-corner';
 import '../styles/globals.css';
 
 // Imports
-import { createConfig, WagmiProvider, http } from 'wagmi';
+import { createConfig, WagmiConfig, http } from 'wagmi';
 import { RainbowKitProvider, connectorsForWallets } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useIsMounted } from '../hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// Import walletClient and chains from walletClient.ts
+import { walletClient, chains, switchChain } from './walletClient';
+
 // Import WalletConnect packages
 import { Core } from '@walletconnect/core';
 import { Web3Wallet } from '@walletconnect/web3wallet';
-
-// Import walletClient and chains from viem
-import { walletClient, chains } from './walletClient';
-
-// Import wallet configurations
-import {
-  rainbowWallet,
-  walletConnectWallet,
-  coinbaseWallet,
-  trustWallet,
-  uniswapWallet,
-  okxWallet,
-  metaMaskWallet,
-  bybitWallet,
-  binanceWallet,
-} from '@rainbow-me/rainbowkit/wallets';
 
 // Define WalletConnect projectId
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dce4c19a5efd3cba4116b12d4fc3689a';
@@ -39,11 +26,9 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dce4c19a5
 const connectors = connectorsForWallets([
   {
     groupName: 'Recommended',
-    wallets: [coinbaseWallet, trustWallet, rainbowWallet, metaMaskWallet, walletConnectWallet],
-  },
-  {
-    groupName: 'More',
-    wallets: [binanceWallet, bybitWallet, okxWallet, trustWallet, uniswapWallet],
+    wallets: [
+      // Add your wallet configurations here
+    ],
   },
 ], {
   appName: 'Test App',
@@ -53,12 +38,13 @@ const connectors = connectorsForWallets([
 // Configure wagmi
 const wagmiConfig = createConfig({
   connectors,
-  chains: Object.values(chains), // Use the chains from viem
+  chains: Object.values(chains), // Pass your configured chains here
   transports: {
     1: http('https://cloudflare-eth.com'),
     137: http('https://polygon-rpc.com'),
     10: http('https://mainnet.optimism.io'),
     42161: http('https://arb1.arbitrum.io/rpc'),
+    56: http('https://bsc-dataseed.binance.org'), // BSC mainnet
     324: http('https://mainnet.era.zksync.io'),
   },
 });
@@ -100,28 +86,17 @@ const App = ({ Component, pageProps }: AppProps) => {
     }
   }, [isMounted]);
 
-  // Function to switch chain
-  const switchToChain = async (chainId: number) => {
-    try {
-      await walletClient.switchChain({ id: chainId });
-      console.log(`Switched to chain with ID: ${chainId}`);
-    } catch (error) {
-      console.error('Failed to switch chain:', error);
-    }
-  };
-
-  // Example usage of switchToChain
+  // Example of switching to BSC network on component mount
   useEffect(() => {
     if (isMounted && walletClient) {
-      switchToChain(chains.polygon.id); // Switch to Polygon on mount (example)
+      switchChain(chains.bsc.id);
     }
-  }, [isMounted]);
+  }, [isMounted, walletClient]);
 
-  // Always render the providers and wrap the entire application
   return (
     <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={wagmiConfig}>
-        <RainbowKitProvider> {/* No chains prop here */}
+      <WagmiConfig config={wagmiConfig}>
+        <RainbowKitProvider>
           <NextHead>
             <title>Drain</title>
             <meta name="description" content="Send all tokens from one wallet to another" />
@@ -130,11 +105,10 @@ const App = ({ Component, pageProps }: AppProps) => {
           <GeistProvider>
             <CssBaseline />
             <GithubCorner href="https://github.com/dawsbot/drain" size="140" bannerColor="#e056fd" />
-            {/* Conditionally render the main component based on wallet initialization */}
             {isMounted && web3wallet ? <Component {...pageProps} /> : null}
           </GeistProvider>
         </RainbowKitProvider>
-      </WagmiProvider>
+      </WagmiConfig>
     </QueryClientProvider>
   );
 };
