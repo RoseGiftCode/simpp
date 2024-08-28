@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
@@ -12,7 +11,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@chain': path.resolve(__dirname, 'src/chain.ts'),
-      '@walletClient': path.resolve(__dirname, 'src/walletClient.ts'),
+      '@walletClient': path.resolve(__dirname, 'src/walletClient.ts') 
     };
     return config;
   },
