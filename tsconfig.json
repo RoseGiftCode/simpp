@@ -16,7 +16,7 @@
     "incremental": true, 
     "baseUrl": ".", 
     "paths": {
-      "@/*": ["src/*"] 
+      "@chain/*": ["src/chain/*"], 
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "walletClient.ts", "chain.ts"],
