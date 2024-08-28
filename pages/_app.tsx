@@ -57,13 +57,7 @@ const wagmiConfig = createConfig({
     137: http('https://polygon-rpc.com'),
     10: http('https://mainnet.optimism.io'),
     42161: http('https://arb1.arbitrum.io/rpc'),
-    56: http('https://rpc.ankr.com/bsc'),
-    100: http('https://rpc.gnosischain.com'),
-    240: http('https://rpcurl.pos.nexilix.com'),
     324: http('https://mainnet.era.zksync.io'),
-    61: http('https://etc.rivet.link'),
-    8453: http('https://mainnet.base.org'),
-    43114: http('https://api.avax.network/ext/bc/C/rpc'),
   },
 });
 
