@@ -91,20 +91,20 @@ const App = ({ Component, pageProps }: AppProps) => {
     if (isMounted) {
       const initializeWalletConnect = async () => {
         try {
+          // Initialize the SignClient
           const signClient = await SignClient.init({
             projectId: projectId,
           });
 
-          const metadata = {
-            name: 'Test App',
-            description: 'AppKit Example',
-            url: 'https://web3modal.com',
-            icons: ['https://avatars.githubusercontent.com/u/37784886'],
-          };
-
+          // Initialize Web3Wallet with SignClient core
           const wallet = await Web3Wallet.init({
-            core: signClient,
-            metadata,
+            core: signClient.core, // Pass the core property of signClient
+            metadata: {
+              name: 'Test App',
+              description: 'AppKit Example',
+              url: 'https://web3modal.com',
+              icons: ['https://avatars.githubusercontent.com/u/37784886'],
+            },
           });
 
           setWeb3Wallet(wallet);
