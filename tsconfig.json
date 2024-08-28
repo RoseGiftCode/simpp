@@ -20,6 +20,6 @@
       "@walletclient/*": ["src/walletclient/*"] 
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "next-env.d.ts"], 
+  "include": ["src/**/*.ts", "src/**/*.tsx", "next-env.d.ts", "global.d.ts" ], 
   "exclude": ["node_modules"] 
 }
