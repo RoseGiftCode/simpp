@@ -14,7 +14,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import walletClient and chains from walletClient.ts
 import { walletClient, chains, switchChain } from '@/walletclient';
-import { chains as predefinedChains } from '@chains';
+import { chains as predefinedChains } from '@chain';
 
 // Import WalletConnect packages
 import { Core } from '@walletconnect/core';
