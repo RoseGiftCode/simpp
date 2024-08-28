@@ -1,3 +1,4 @@
+// Import React and necessary hooks
 import { useEffect, useState } from 'react';
 import { CssBaseline, GeistProvider } from '@geist-ui/core';
 import type { AppProps } from 'next/app';
@@ -5,7 +6,7 @@ import NextHead from 'next/head';
 import GithubCorner from 'react-github-corner';
 import '../styles/globals.css';
 
-// Imports
+// Wagmi and RainbowKit imports
 import { createConfig, WagmiConfig, http } from 'wagmi';
 import { RainbowKitProvider, connectorsForWallets } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -25,6 +26,9 @@ import {
   binanceWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
+// Import chains from wagmi
+import { mainnet, polygon, optimism, arbitrum, zkSync } from 'wagmi/chains';
+
 // Import WalletConnect packages
 import SignClient from '@walletconnect/sign-client';
 import { Web3Wallet } from '@walletconnect/web3wallet';
@@ -32,27 +36,40 @@ import { Web3Wallet } from '@walletconnect/web3wallet';
 // Define WalletConnect projectId
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dce4c19a5efd3cba4116b12d4fc3689a';
 
-// Define connectors
-const connectors = connectorsForWallets([
-  {
-    groupName: 'Recommended',
-    wallets: [coinbaseWallet, trustWallet, rainbowWallet, metaMaskWallet, walletConnectWallet],
-  },
-  {
-    groupName: 'More',
-    wallets: [binanceWallet, bybitWallet, okxWallet, trustWallet, uniswapWallet],
-  },
-], {
-  appName: 'Test App',
-  projectId: projectId,
-});
+// Define predefinedChains
+const predefinedChains = {
+  mainnet,
+  polygon,
+  optimism,
+  arbitrum,
+  zkSync,
+};
 
-// Convert object to tuple (if predefinedChains is an object)
+// Convert object to tuple
 const chainsArray = Object.values(predefinedChains) as [Chain, ...Chain[]];
 
+// Define connectors
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [coinbaseWallet, trustWallet, rainbowWallet, metaMaskWallet, walletConnectWallet],
+    },
+    {
+      groupName: 'More',
+      wallets: [binanceWallet, bybitWallet, okxWallet, trustWallet, uniswapWallet],
+    },
+  ],
+  {
+    appName: 'Test App',
+    projectId: projectId,
+  }
+);
+
+// Create Wagmi config
 const wagmiConfig = createConfig({
   connectors,
-  chains: chainsArray, // Use the converted chains array
+  chains: chainsArray,
   transports: {
     1: http('https://eth-mainnet.g.alchemy.com/v2/iUoZdhhu265uyKgw-V6FojhyO80OKfmV'),
     137: http('https://polygon-mainnet.g.alchemy.com/v2/iUoZdhhu265uyKgw-V6FojhyO80OKfmV'),
@@ -62,8 +79,10 @@ const wagmiConfig = createConfig({
   },
 });
 
+// Create a QueryClient instance for React Query
 const queryClient = new QueryClient();
 
+// Main App component
 const App = ({ Component, pageProps }: AppProps) => {
   const [web3wallet, setWeb3Wallet] = useState<InstanceType<typeof Web3Wallet> | null>(null);
   const isMounted = useIsMounted();
@@ -73,19 +92,19 @@ const App = ({ Component, pageProps }: AppProps) => {
       const initializeWalletConnect = async () => {
         try {
           const signClient = await SignClient.init({
-            projectId: projectId
+            projectId: projectId,
           });
 
           const metadata = {
             name: 'Test App',
             description: 'AppKit Example',
             url: 'https://web3modal.com',
-            icons: ['https://avatars.githubusercontent.com/u/37784886']
+            icons: ['https://avatars.githubusercontent.com/u/37784886'],
           };
 
           const wallet = await Web3Wallet.init({
             core: signClient,
-            metadata
+            metadata,
           });
 
           setWeb3Wallet(wallet);
@@ -99,12 +118,13 @@ const App = ({ Component, pageProps }: AppProps) => {
     }
   }, [isMounted]);
 
-  // Example of switching to BSC network on component mount
+  // Example of switching to a different network on component mount
   useEffect(() => {
-    if (isMounted && walletClient) {
-      switchChain(chains.bsc.id);
+    if (isMounted && web3wallet) {
+      // Replace with desired chain if needed
+      switchChain(predefinedChains.polygon.id);
     }
-  }, [isMounted, walletClient]);
+  }, [isMounted]);
 
   return (
     <QueryClientProvider client={queryClient}>
