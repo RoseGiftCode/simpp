@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import walletClient and chains from walletClient.ts
 import { walletClient, chains, switchChain } from '@/walletclient';
+import { chains as predefinedChains } from './chains';
 
 // Import WalletConnect packages
 import { Core } from '@walletconnect/core';
@@ -35,6 +36,14 @@ const connectors = connectorsForWallets([
   projectId: projectId,
 });
 
+// Convert object to tuple (if predefinedChains is an object)
+const chainsArray = Object.values(predefinedChains) as [Chain, ...Chain[]];
+
+const wagmiConfig = createConfig({
+  connectors,
+  chains: chainsArray, // Pass the converted chains array
+});
+
 // Configure wagmi
 const wagmiConfig = createConfig({
   connectors,
@@ -48,6 +57,7 @@ const wagmiConfig = createConfig({
     324: http('https://mainnet.era.zksync.io'),
   },
 });
+
 
 const queryClient = new QueryClient();
 
