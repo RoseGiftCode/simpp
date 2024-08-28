@@ -1,8 +1,3 @@
-// global.d.ts
-interface Window {
-  ethereum?: any;
-}
-
 // walletClient.ts
 import { createWalletClient, custom } from 'viem';
 import { mainnet, bsc, polygon, optimism, arbitrum, zkSync } from 'viem/chains';
@@ -20,7 +15,7 @@ export const chains = {
 // Create the wallet client
 export const walletClient = createWalletClient({
   chain: mainnet, // Default chain can be set to any of your supported chains
-  transport: custom(window.ethereum!), // Ensure window.ethereum is recognized
+  transport: custom(window.ethereum as EthereumProvider), // Use the new type for ethereum
 });
 
 // Function to switch chains
