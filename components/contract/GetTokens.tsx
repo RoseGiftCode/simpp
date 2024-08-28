@@ -5,7 +5,14 @@ import { tinyBig } from 'essential-eth';
 import { useAtom } from 'jotai';
 import { checkedTokensAtom } from '../../src/atoms/checked-tokens-atom';
 import { globalTokensAtom } from '../../src/atoms/global-tokens-atom';
-import { httpFetchTokens, Tokens } from '../../src/fetch-tokens';
+import { Alchemy, Network } from 'alchemy-sdk';
+
+// Setup Alchemy
+const settings = {
+  apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV", // Replace with your Alchemy API Key
+  network: Network.ETH_MAINNET,  // Replace with your network
+};
+const alchemy = new Alchemy(settings);
 
 const supportedChains = [1, 137, 10, 42161, 324]; // Add your supported chain IDs here
 
@@ -14,10 +21,10 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const TokenRow: React.FunctionComponent<{ token: Tokens[number] }> = ({ token }) => {
+const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
   const { chain } = useAccount(); // Use chain from useAccount
-  const pendingTxn = checkedRecords[token.contract_address as `0x${string}`]?.pendingTxn;
+  const pendingTxn = checkedRecords[token.contract_address]?.pendingTxn;
   const setTokenChecked = (tokenAddress: string, isChecked: boolean) => {
     setCheckedRecords((old) => ({
       ...old,
@@ -41,7 +48,7 @@ const TokenRow: React.FunctionComponent<{ token: Tokens[number] }> = ({ token })
     <div key={contract_address}>
       {isLoading && <Loading />}
       <Toggle
-        checked={checkedRecords[contract_address as `0x${string}`]?.isChecked}
+        checked={checkedRecords[contract_address]?.isChecked}
         onChange={(e) => {
           setTokenChecked(contract_address, e.target.checked);
         }}
@@ -87,11 +94,20 @@ export const GetTokens = () => {
         );
       }
 
-      const newTokens = await httpFetchTokens(
-        chain.id, // Use chain ID from useAccount
-        address as string
-      );
-      setTokens((newTokens as any).data.erc20s);
+      // Fetch ERC20 token balances
+      const tokensResponse = await alchemy.core.getTokenBalances(address as string, [/* List your token contracts here */]);
+
+      // Fetch native token balance
+      const nativeBalanceResponse = await alchemy.core.getBalance(address as string, "latest");
+
+      // Process token balances
+      const processedTokens = tokensResponse.tokenBalances.map((balance) => ({
+        contract_address: balance.contractAddress,
+        balance: balance.tokenBalance,
+        // Add additional processing as needed
+      }));
+
+      setTokens(processedTokens);
     } catch (error) {
       setError((error as Error).message);
     }
