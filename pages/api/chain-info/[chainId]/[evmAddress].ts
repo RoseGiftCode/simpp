@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const chainName = selectChainName(parseInt(chainId as string));
 
     // Construct the Alchemy API URL
-    const alchemyApiUrl = `https://${chainName}.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
+    const alchemyApiUrl = `https://${chainName}.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`;
 
     // Fetch token balances using the Alchemy API
     const response = await fetch(alchemyApiUrl, {
