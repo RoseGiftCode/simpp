@@ -1,144 +1,55 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 
-const ALCHEMY_API_KEY = z.string().parse(process.env.ALCHEMY_API_KEY);
-console.log('WalletConnect Project ID:', process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
+const ALCHEMY_API_KEY = z
+  .string()
+  .min(32)
+  .max(64)
+  .parse(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY);
 
-
-type ChainName =
-  | 'eth-mainnet'
-  | 'matic-mainnet'
-  | 'optimism-mainnet'
-  | 'arbitrum-mainnet'
-  | 'bsc-mainnet'
-  | 'gnosis-mainnet';
-
-function selectChainName(chainId: number): ChainName {
+const selectChainName = (chainId: number) => {
   switch (chainId) {
     case 1:
-      return 'eth-mainnet';
-    case 10:
-      return 'optimism-mainnet';
-    case 56:
-      return 'bsc-mainnet';
-    case 100:
-      return 'gnosis-mainnet';
+      return 'ethereum';
     case 137:
-      return 'matic-mainnet';
+      return 'polygon';
+    case 10:
+      return 'optimism';
     case 42161:
-      return 'arbitrum-mainnet';
+      return 'arbitrum';
+    case 324:
+      return 'zksync-era';
     default:
-      const errorMessage = `chainId "${chainId}" not supported`;
-      alert(errorMessage);
-      throw new Error(errorMessage);
+      throw new Error(`Unsupported chainId: ${chainId}`);
   }
-}
-
-const fetchTokenMetadata = async (contractAddress: string, chainName: ChainName) => {
-  const response = await fetch(
-    `https://eth-${chainName}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'alchemy_getTokenMetadata',
-        params: [contractAddress],
-        id: 1,
-      }),
-    },
-  );
-
-  const data = await response.json();
-  return data.result;
 };
 
-const fetchTokens = async (chainId: number, evmAddress: string) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { address, chainId } = req.body;
   const chainName = selectChainName(chainId);
-  const response = await fetch(
-    `https://eth-${chainName}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-    {
+  const url = `https://${chainName}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
+
+  const body = JSON.stringify({
+    id: 1,
+    jsonrpc: '2.0',
+    method: 'alchemy_getTokenBalances',
+    params: [address],
+  });
+
+  try {
+    const alchemyRes = await fetch(url, {
       method: 'POST',
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'alchemy_getTokenBalances',
-        params: [evmAddress],
-        id: 1,
-      }),
-    },
-  );
-
-  const data = await response.json();
-  const tokenBalances = data.result.tokenBalances;
-
-  // Create a list of contract addresses
-  const contractAddresses = tokenBalances.map((token: any) => token.contractAddress);
-
-  // Prepare arrays to store ERC20 and NFT metadata
-  const erc20s = [];
-  const nfts = [];
-
-  for (const contractAddress of contractAddresses) {
-    const metadata = await fetchTokenMetadata(contractAddress, chainName);
-
-    if (metadata.tokenType === 'ERC20') {
-      erc20s.push({
-        contract_decimals: metadata.decimals,
-        contract_name: metadata.name,
-        contract_ticker_symbol: metadata.symbol,
-        contract_address: contractAddress,
-        logo_url: metadata.logo,
-        balance: tokenBalances.find((token: any) => token.contractAddress === contractAddress).tokenBalance,
-        quote_rate: metadata.quote_rate, // Assuming quote_rate is obtained from metadata or another source
-      });
-    } else if (metadata.tokenType === 'ERC721') {
-      nfts.push({
-        contract_decimals: metadata.decimals,
-        contract_name: metadata.name,
-        contract_ticker_symbol: metadata.symbol,
-        contract_address: contractAddress,
-        logo_url: metadata.logo,
-        balance: tokenBalances.find((token: any) => token.contractAddress === contractAddress).tokenBalance,
-      });
-    }
-  }
-
-  return { erc20s, nfts };
-};
-
-const positiveIntFromString = (value: string): number => {
-  const intValue = parseInt(value, 10);
-
-  if (isNaN(intValue) || intValue <= 0) {
-    throw new Error('Value must be a positive integer');
-  }
-
-  return intValue;
-};
-
-const requestQuerySchema = z.object({
-  chainId: z.string().transform(positiveIntFromString),
-  evmAddress: z.string(),
-});
-
-// Define the API route handler
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  try {
-    const { chainId, evmAddress } = requestQuerySchema.parse(req.query);
-
-    const response = await fetchTokens(chainId, evmAddress);
-
-    res.status(200).json({ success: true, data: response });
+      body,
+    });
+    const data = await alchemyRes.json();
+    res.status(200).json(data);
   } catch (error) {
-    console.error('Error processing the request:', error);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
+    res.status(500).json({ error: error.message });
   }
-}
+};
+
+export default handler;
