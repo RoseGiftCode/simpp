@@ -12,8 +12,6 @@ const selectChainName = (chainId: number): string => {
       return 'optimism-mainnet';
     case 42161:
       return 'arbitrum-mainnet';
-    case 1101:
-      return 'polygonzkevm-mainnet';
     default:
       throw new Error('Unsupported chain ID');
   }
