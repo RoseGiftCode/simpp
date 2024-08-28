@@ -17,8 +17,9 @@
     "baseUrl": ".", 
     "paths": {
       "@chain/*": ["src/chain/*"], 
+      "@walletclient/*": ["src/walletclient/*"] 
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "walletClient.ts", "chain.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "next-env.d.ts"], 
   "exclude": ["node_modules"] 
 }
