@@ -20,6 +20,19 @@ import { chains as predefinedChains } from '@chain';
 import { Core } from '@walletconnect/core';
 import { Web3Wallet } from '@walletconnect/web3wallet';
 
+// Import wallet configurations
+import {
+  rainbowWallet,
+  walletConnectWallet,
+  coinbaseWallet,
+  trustWallet,
+  uniswapWallet,
+  okxWallet,
+  metaMaskWallet,
+  bybitWallet,
+  binanceWallet,
+} from '@rainbow-me/rainbowkit/wallets';
+
 // Define WalletConnect projectId
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dce4c19a5efd3cba4116b12d4fc3689a';
 
@@ -27,9 +40,11 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dce4c19a5
 const connectors = connectorsForWallets([
   {
     groupName: 'Recommended',
-    wallets: [
-      // Add your wallet configurations here
-    ],
+    wallets: [coinbaseWallet, trustWallet, rainbowWallet, metaMaskWallet, walletConnectWallet],
+  },
+  {
+    groupName: 'More',
+    wallets: [binanceWallet, bybitWallet, okxWallet, trustWallet, uniswapWallet],
   },
 ], {
   appName: 'Test App',
@@ -41,13 +56,7 @@ const chainsArray = Object.values(predefinedChains) as [Chain, ...Chain[]];
 
 const wagmiConfig = createConfig({
   connectors,
-  chains: chainsArray, // Pass the converted chains array
-});
-
-// Configure wagmi
-const wagmiConfig = createConfig({
-  connectors,
-  chains: Object.values(chains), // Pass your configured chains here
+  chains: chainsArray, // Use the converted chains array
   transports: {
     1: http('https://cloudflare-eth.com'),
     137: http('https://polygon-rpc.com'),
@@ -57,7 +66,6 @@ const wagmiConfig = createConfig({
     324: http('https://mainnet.era.zksync.io'),
   },
 });
-
 
 const queryClient = new QueryClient();
 
