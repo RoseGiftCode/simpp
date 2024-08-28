@@ -1,4 +1,3 @@
-// next.config.mjs
 import path from 'path';
 
 /** @type {import('next').NextConfig} */
@@ -8,8 +7,8 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@chain': path.resolve(__dirname, 'src/chain'),
-      '@walletclient': path.resolve(__dirname, 'src/walletclient'),
+      '@chain': path.resolve(__dirname, 'src'),
+      '@walletclient': path.resolve(__dirname, 'src'),
     };
     return config;
   },
