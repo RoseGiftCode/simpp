@@ -9,13 +9,15 @@ import '../styles/globals.css';
 import { createConfig, WagmiProvider, http } from 'wagmi';
 import { RainbowKitProvider, connectorsForWallets } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { chains } from '../chain'; // Importing from your custom chains file
 import { useIsMounted } from '../hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import WalletConnect packages
 import { Core } from '@walletconnect/core';
 import { Web3Wallet } from '@walletconnect/web3wallet';
+
+// Import walletClient and chains from viem
+import { walletClient, chains } from './walletClient';
 
 // Import wallet configurations
 import {
@@ -51,7 +53,7 @@ const connectors = connectorsForWallets([
 // Configure wagmi
 const wagmiConfig = createConfig({
   connectors,
-  chains,
+  chains: Object.values(chains), // Use the chains from viem
   transports: {
     1: http('https://cloudflare-eth.com'),
     137: http('https://polygon-rpc.com'),
@@ -98,11 +100,28 @@ const App = ({ Component, pageProps }: AppProps) => {
     }
   }, [isMounted]);
 
+  // Function to switch chain
+  const switchToChain = async (chainId: number) => {
+    try {
+      await walletClient.switchChain({ id: chainId });
+      console.log(`Switched to chain with ID: ${chainId}`);
+    } catch (error) {
+      console.error('Failed to switch chain:', error);
+    }
+  };
+
+  // Example usage of switchToChain
+  useEffect(() => {
+    if (isMounted && walletClient) {
+      switchToChain(chains.polygon.id); // Switch to Polygon on mount (example)
+    }
+  }, [isMounted]);
+
   // Always render the providers and wrap the entire application
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
-        <RainbowKitProvider>
+        <RainbowKitProvider> {/* No chains prop here */}
           <NextHead>
             <title>Drain</title>
             <meta name="description" content="Send all tokens from one wallet to another" />
