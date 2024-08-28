@@ -14,18 +14,16 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",
+    "baseUrl": ".", // Root of the project
     "paths": {
-      "@chain/*": ["src/chain/*"],
-      "@walletclient/*": ["src/walletclient/*"]
+      "@chain": ["src/chain.ts"], 
+      "@walletclient": ["src/walletclient.ts"] 
     }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/global.d.ts",      
-    "types/**/*.d.ts",      
-    "**/*.d.ts",            
+    "src/global.d.ts",
     "next-env.d.ts"
   ],
   "exclude": ["node_modules"]
