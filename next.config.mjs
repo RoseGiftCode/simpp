@@ -8,12 +8,11 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@chain': path.resolve('./src/chain.ts'), // Ensure this path matches the actual location
-      '@walletclient': path.resolve('./src/walletclient.ts'), // Ensure this path matches the actual location
+      '@chain': path.resolve(__dirname, 'src/chain'),
+      '@walletclient': path.resolve(__dirname, 'src/walletclient'),
     };
     return config;
   },
 };
 
 export default nextConfig;
-
