@@ -1,31 +1,33 @@
+// walletClient.ts
 import { createWalletClient, custom } from 'viem';
-import { mainnet, polygon, avalanche, arbitrum, bsc, zkSync } from 'viem/chains';
+import { mainnet, bsc, polygon, optimism, arbitrum, zkSync } from 'viem/chains';
 
-// Create a wallet client instance
-export const walletClient = createWalletClient({
-  chain: mainnet, // Set the default chain; you can choose any default network
-  transport: custom(window.ethereum!), // Assuming MetaMask or any Ethereum provider is available
-});
-
-// Define the chains you want to support
+// Define your chains
 export const chains = {
-  mainnet,   // Ethereum Mainnet
-  polygon,   // Polygon Network
-  avalanche, // Avalanche C-Chain
-  arbitrum,  // Arbitrum One
-  bsc,       // Binance Smart Chain
-  zkSync,    // zkSync Era Mainnet
+  mainnet,
+  bsc,
+  polygon,
+  optimism,
+  arbitrum,
+  zkSync,
 };
 
-// You can create a function to switch chains
+// Create the wallet client
+export const walletClient = createWalletClient({
+  chain: mainnet, // Default chain can be set to any of your supported chains
+  transport: custom(window.ethereum!),
+});
+
+// Function to switch chains
 export const switchChain = async (chainId: number) => {
   try {
     await walletClient.switchChain({ id: chainId });
-    console.log(`Switched to chain with ID: ${chainId}`);
+    console.log(`Successfully switched to chain ID: ${chainId}`);
   } catch (error) {
-    console.error('Error switching chain:', error);
+    console.error(`Failed to switch to chain ID: ${chainId}`, error);
   }
 };
+
 
 
 
