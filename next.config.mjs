@@ -12,7 +12,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@chain': path.resolve(__dirname, 'src/chain.ts'),
-      '@walletclient': path.resolve(__dirname, 'src/walletclient.ts'),
+      '@walletClient': path.resolve(__dirname, 'src/walletclient.ts'),
     };
     return config;
   },
