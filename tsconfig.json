@@ -17,7 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@chain": ["src/chain.ts"],
-      "@walletClient": ["src/walletclient.ts"]
+      "@walletClient": ["src/walletClient.ts"]
     }
   },
   "include": [
