@@ -13,8 +13,8 @@ import { useIsMounted } from '../hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import walletClient and chains from walletClient.ts
-import { walletClient, chains, switchChain } from '@/walletclient/walletclient';
-import { chains as predefinedChains } from '@chain/chain';
+import { walletClient, chains, switchChain } from '@/walletclient';
+import { chains as predefinedChains } from '@chain';
 
 // Import WalletConnect packages
 import { Core } from '@walletconnect/core';
