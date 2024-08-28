@@ -14,10 +14,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".", 
+    "baseUrl": ".",
     "paths": {
-      "@chain": ["src"], 
-      "@walletclient": ["src"]
+      "@chain": ["src/chain.ts"],
+      "@walletclient": ["src/walletclient.ts"]
     }
   },
   "include": [
