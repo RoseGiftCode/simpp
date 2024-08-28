@@ -19,6 +19,6 @@
       "@/*": ["src/*"] 
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "walletClient.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "walletClient.ts", "chain.ts"],
   "exclude": ["node_modules"] 
 }
