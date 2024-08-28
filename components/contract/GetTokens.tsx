@@ -25,7 +25,15 @@ const alchemyInstances = {
     apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.ZK_SYNC,
   }),
-  // Add other networks as needed
+  [Network.POLYGON]: new Alchemy({
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    network: Network.POLYGON,
+  }),
+  [Network.ARBITRUM]: new Alchemy({
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    network: Network.ARBITRUM,
+  }),
+  // Add other networks as needed 
 };
 
 const supportedChains = [1, 56, 10, 324, 280]; // Add your supported chain IDs here
