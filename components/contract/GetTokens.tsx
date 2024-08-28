@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
-
 import { Loading, Toggle } from '@geist-ui/core';
 import { tinyBig } from 'essential-eth';
 import { useAtom } from 'jotai';
@@ -8,18 +7,17 @@ import { checkedTokensAtom } from '../../src/atoms/checked-tokens-atom';
 import { globalTokensAtom } from '../../src/atoms/global-tokens-atom';
 import { httpFetchTokens, Tokens } from '../../src/fetch-tokens';
 
+const supportedChains = [1, 137, 10, 42161, 324]; // Add your supported chain IDs here
+
 const usdFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
 });
 
-const TokenRow: React.FunctionComponent<{ token: Tokens[number] }> = ({
-  token,
-}) => {
+const TokenRow: React.FunctionComponent<{ token: Tokens[number] }> = ({ token }) => {
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
-  const { chain } = useAccount();  // Use chain from useAccount
-  const pendingTxn =
-    checkedRecords[token.contract_address as `0x${string}`]?.pendingTxn;
+  const { chain } = useAccount(); // Use chain from useAccount
+  const pendingTxn = checkedRecords[token.contract_address as `0x${string}`]?.pendingTxn;
   const setTokenChecked = (tokenAddress: string, isChecked: boolean) => {
     setCheckedRecords((old) => ({
       ...old,
@@ -34,9 +32,11 @@ const TokenRow: React.FunctionComponent<{ token: Tokens[number] }> = ({
     : unroundedBalance.gt(1000)
     ? unroundedBalance.round(2)
     : unroundedBalance.round(5);
+
   const { isLoading } = useWaitForTransactionReceipt({
     hash: pendingTxn?.blockHash || undefined,
   });
+
   return (
     <div key={contract_address}>
       {isLoading && <Loading />}
@@ -79,19 +79,27 @@ export const GetTokens = () => {
     setLoading(true);
     try {
       setError('');
+      if (!chain || !supportedChains.includes(chain.id)) {
+        throw new Error(
+          `Chain ${chain?.name || 'unknown'} not supported. Supported chains: ${supportedChains.join(
+            ', '
+          )}.`
+        );
+      }
+
       const newTokens = await httpFetchTokens(
-        chain?.id as number, // Use chain ID from useAccount
-        address as string,
+        chain.id, // Use chain ID from useAccount
+        address as string
       );
       setTokens((newTokens as any).data.erc20s);
     } catch (error) {
-      setError(`Chain ${chain?.id} not supported. Coming soon!`);
+      setError((error as Error).message);
     }
     setLoading(false);
-  }, [address, chain?.id, setTokens]); // Correct dependencies
+  }, [address, chain, setTokens]); // Correct dependencies
 
   useEffect(() => {
-    if (address) {
+    if (address && chain?.id) {
       fetchData();
       setCheckedRecords({});
     }
@@ -118,6 +126,7 @@ export const GetTokens = () => {
       {tokens.map((token) => (
         <TokenRow token={token} key={token.contract_address} />
       ))}
+      {/* Optional Refetch Button */}
       {/* {isConnected && (
         <Button style={{ marginLeft: '20px' }} onClick={() => fetchData()}>
           Refetch
