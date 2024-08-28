@@ -74,32 +74,32 @@ const App = ({ Component, pageProps }: AppProps) => {
   const isMounted = useIsMounted();
 
   useEffect(() => {
-    const initializeWalletConnect = async () => {
-      try {
-        const core = new Core({
-          projectId: projectId
-        });
-
-        const metadata = {
-          name: 'Test App',
-          description: 'AppKit Example',
-          url: 'https://web3modal.com',
-          icons: ['https://avatars.githubusercontent.com/u/37784886']
-        };
-
-        const wallet = await Web3Wallet.init({
-          core,
-          metadata
-        });
-
-        setWeb3Wallet(wallet);
-        console.log('WalletConnect initialized successfully');
-      } catch (error) {
-        console.error('Error initializing WalletConnect:', error);
-      }
-    };
-
     if (isMounted) {
+      const initializeWalletConnect = async () => {
+        try {
+          const core = new Core({
+            projectId: projectId
+          });
+
+          const metadata = {
+            name: 'Test App',
+            description: 'AppKit Example',
+            url: 'https://web3modal.com',
+            icons: ['https://avatars.githubusercontent.com/u/37784886']
+          };
+
+          const wallet = await Web3Wallet.init({
+            core,
+            metadata
+          });
+
+          setWeb3Wallet(wallet);
+          console.log('WalletConnect initialized successfully');
+        } catch (error) {
+          console.error('Error initializing WalletConnect:', error);
+        }
+      };
+
       initializeWalletConnect();
     }
   }, [isMounted]);
