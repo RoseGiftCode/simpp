@@ -1,55 +1,55 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { z } from 'zod';
+// Required imports
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-const ALCHEMY_API_KEY = z
-  .string()
-  .min(32)
-  .max(64)
-  .parse(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY);
-
-const selectChainName = (chainId: number) => {
+// Helper function to select chain name based on chain ID
+const selectChainName = (chainId: number): string => {
   switch (chainId) {
     case 1:
-      return 'ethereum';
+      return 'eth-mainnet';
     case 137:
-      return 'polygon';
+      return 'polygon-mainnet';
     case 10:
-      return 'optimism';
+      return 'optimism-mainnet';
     case 42161:
-      return 'arbitrum';
-    case 324:
-      return 'zksync-era';
+      return 'arbitrum-mainnet';
+    case 1101:
+      return 'polygonzkevm-mainnet';
     default:
-      throw new Error(`Unsupported chainId: ${chainId}`);
+      throw new Error('Unsupported chain ID');
   }
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { address, chainId } = req.body;
-  const chainName = selectChainName(chainId);
-  const url = `https://${chainName}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
-
-  const body = JSON.stringify({
-    id: 1,
-    jsonrpc: '2.0',
-    method: 'alchemy_getTokenBalances',
-    params: [address],
-  });
-
+// Main API handler
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const alchemyRes = await fetch(url, {
+    // Extract address and chainId from the request query
+    const { address, chainId } = req.query;
+
+    // Select the appropriate chain name based on the chainId
+    const chainName = selectChainName(parseInt(chainId as string));
+
+    // Construct the Alchemy API URL
+    const alchemyApiUrl = `https://${chainName}.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
+
+    // Fetch token balances using the Alchemy API
+    const response = await fetch(alchemyApiUrl, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'alchemy_getTokenBalances',
+        params: [address, 'erc20'],
+      }),
     });
-    const data = await alchemyRes.json();
+
+    // Parse the response data
+    const data = await response.json();
+
+    // Send the data back as a JSON response
     res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Handle errors with type assertion for better type safety
+    res.status(500).json({ error: (error as Error).message });
   }
-};
-
-export default handler;
+}
