@@ -7,14 +7,28 @@ import { checkedTokensAtom } from '../../src/atoms/checked-tokens-atom';
 import { globalTokensAtom } from '../../src/atoms/global-tokens-atom';
 import { Alchemy, Network } from 'alchemy-sdk';
 
-// Setup Alchemy
-const settings = {
-  apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV", // Replace with your Alchemy API Key
-  network: Network.ETH_MAINNET,  // Replace with your network
+// Setup Alchemy instances for multiple networks
+const alchemyInstances = {
+  [Network.ETH_MAINNET]: new Alchemy({
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    network: Network.ETH_MAINNET,
+  }),
+  // [Network.BSC_MAINNET]: new Alchemy({
+  //   apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+  //   network: Network.BSC_MAINNET,
+  // }),
+  [Network.OPTIMISM]: new Alchemy({
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    network: Network.OPTIMISM,
+  }),
+  [Network.ZK_SYNC]: new Alchemy({
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    network: Network.ZK_SYNC,
+  }),
+  // Add other networks as needed
 };
-const alchemy = new Alchemy(settings);
 
-const supportedChains = [1, 137, 10, 42161, 324]; // Add your supported chain IDs here
+const supportedChains = [1, 56, 10, 324, 280]; // Add your supported chain IDs here
 
 const usdFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -93,6 +107,9 @@ export const GetTokens = () => {
           )}.`
         );
       }
+
+      // Get the appropriate Alchemy instance for the current network
+      const alchemy = alchemyInstances[chain.id];
 
       // Fetch ERC20 token balances
       const tokensResponse = await alchemy.core.getTokenBalances(address as string, [/* List your token contracts here */]);
