@@ -83,10 +83,13 @@ const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
   };
 
   const { address } = useAccount();
-  const { balance, contract_address, contract_ticker_symbol } = token;
+  const { balance, contract_address, contract_ticker_symbol, quote, quote_rate } = token;
 
-  // Safely calculate balances
-  const unroundedBalance = safeNumber(token.quote).div(safeNumber(token.quote_rate));
+  // Safely handle division by zero by checking if quote_rate is valid
+  const unroundedBalance = safeNumber(quote_rate).gt(0)
+    ? safeNumber(quote).div(safeNumber(quote_rate))
+    : safeNumber(0); // Default to zero if quote_rate is zero or invalid
+
   const roundedBalance = unroundedBalance.lt(0.001)
     ? unroundedBalance.round(10)
     : unroundedBalance.gt(1000)
@@ -120,7 +123,7 @@ const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
       </a>{' '}
       (worth{' '}
       <span style={{ fontFamily: 'monospace' }}>
-        {usdFormatter.format(safeNumber(token.quote))}
+        {usdFormatter.format(safeNumber(quote))}
       </span>
       )
     </div>
@@ -156,7 +159,8 @@ export const GetTokens = () => {
       const processedTokens = tokensResponse.tokenBalances.map((balance) => ({
         contract_address: balance.contractAddress,
         balance: safeNumber(balance.tokenBalance),
-        // Add additional processing if needed
+        quote: balance.quote || 0, // Add default value if missing
+        quote_rate: balance.quoteRate || 0, // Add default value if missing
       }));
 
       setTokens(processedTokens);
