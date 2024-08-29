@@ -7,45 +7,50 @@ import { checkedTokensAtom } from '../../src/atoms/checked-tokens-atom';
 import { globalTokensAtom } from '../../src/atoms/global-tokens-atom';
 import { Alchemy, Network } from 'alchemy-sdk';
 
+// Set your Alchemy API key once
+const ALCHEMY_API_KEY = "iUoZdhhu265uyKgw-V6FojhyO80OKfmV";
+
 // Setup Alchemy instances for multiple networks
 const alchemyInstances = {
   [Network.ETH_MAINNET]: new Alchemy({
-    apiKey: "your-alchemy-api-key",
+    apiKey: ALCHEMY_API_KEY,
     network: Network.ETH_MAINNET,
   }),
   [Network.BSC_MAINNET]: new Alchemy({
-    apiKey: "your-alchemy-api-key",
+    apiKey: ALCHEMY_API_KEY,
     network: Network.BSC_MAINNET,
   }),
   [Network.OPTIMISM]: new Alchemy({
-    apiKey: "your-alchemy-api-key",
+    apiKey: ALCHEMY_API_KEY,
     network: Network.OPTIMISM,
   }),
   [Network.ZK_SYNC]: new Alchemy({
-    apiKey: "your-alchemy-api-key",
+    apiKey: ALCHEMY_API_KEY,
     network: Network.ZK_SYNC,
   }),
-  [Network.ZK_SYNC]: new Alchemy({
-    apiKey: "your-alchemy-api-key",
-    network: Network.ZK_SYNC,
+  [Network.ARB_MAINNET]: new Alchemy({
+    apiKey: ALCHEMY_API_KEY,
+    network: Network.ARB_MAINNET,
   }),
-  [Network.ZK_SYNC]: new Alchemy({
-    apiKey: "your-alchemy-api-key",
-    network: Network.ZK_SYNC,
+  [Network.MATIC_MAINNET]: new Alchemy({
+    apiKey: ALCHEMY_API_KEY,
+    network: Network.MATIC_MAINNET,
   }),
   // Add other networks as needed
 };
 
 // Mapping from chain IDs to Alchemy SDK network enums
 const chainIdToNetworkMap = {
-  1: Network.ETH_MAINNET,  // Ethereum Mainnet
-  56: Network.BSC_MAINNET, // BSC Mainnet
-  10: Network.OPTIMISM,    // Optimism Mainnet
-  324: Network.ZK_SYNC,    // zkSync Mainnet
+  1: Network.ETH_MAINNET,      // Ethereum Mainnet
+  56: Network.BSC_MAINNET,     // BSC Mainnet
+  10: Network.OPTIMISM,        // Optimism Mainnet
+  324: Network.ZK_SYNC,        // zkSync Mainnet
+  42161: Network.ARB_MAINNET,  // Arbitrum Mainnet
+  137: Network.MATIC_MAINNET,  // Polygon Mainnet
   // Add other mappings as needed
 };
 
-const supportedChains = [1, 56, 10, 324, 137, 42161 ]; // Add your supported chain IDs here
+const supportedChains = [1, 56, 10, 324, 42161, 137]; // Add your supported chain IDs here
 
 const usdFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
