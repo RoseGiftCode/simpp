@@ -47,7 +47,7 @@ const chainIdToNetworkMap = {
   // Add other mappings as needed
 };
 
-const supportedChains = [1, 56, 10, 324, 42161, 137]; // Add your supported chain IDs here
+const supportedChains = [1, 56, 10, 324, 42161, 137]; // Supported chain IDs
 
 const usdFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -58,15 +58,35 @@ const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
   const { chain } = useAccount();
   const pendingTxn = checkedRecords[token.contract_address]?.pendingTxn;
+
   const setTokenChecked = (tokenAddress: string, isChecked: boolean) => {
     setCheckedRecords((old) => ({
       ...old,
       [tokenAddress]: { isChecked: isChecked },
     }));
   };
+
   const { address } = useAccount();
   const { balance, contract_address, contract_ticker_symbol } = token;
-  const unroundedBalance = tinyBig(token.quote).div(token.quote_rate);
+
+  // Safe numerical handling with tinyBig
+  const safeNumber = (value) => {
+    try {
+      // Check for undefined or null
+      if (value === undefined || value === null || value === '') {
+        return tinyBig(0);
+      }
+      // Convert to string and ensure it's a valid number
+      const num = tinyBig(value.toString());
+      return num.isNaN() ? tinyBig(0) : num;
+    } catch (error) {
+      console.error('Invalid number detected:', error, value);
+      return tinyBig(0);
+    }
+  };
+
+  // Safely calculate balances
+  const unroundedBalance = safeNumber(token.quote).div(safeNumber(token.quote_rate));
   const roundedBalance = unroundedBalance.lt(0.001)
     ? unroundedBalance.round(10)
     : unroundedBalance.gt(1000)
@@ -100,7 +120,7 @@ const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
       </a>{' '}
       (worth{' '}
       <span style={{ fontFamily: 'monospace' }}>
-        {usdFormatter.format(token.quote)}
+        {usdFormatter.format(safeNumber(token.quote))}
       </span>
       )
     </div>
@@ -112,7 +132,6 @@ export const GetTokens = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
-
   const { address, isConnected, chain } = useAccount();
 
   const fetchData = useCallback(async () => {
@@ -127,33 +146,23 @@ export const GetTokens = () => {
         );
       }
 
-      // Map chain ID to the correct Alchemy network key
       const alchemyNetwork = chainIdToNetworkMap[chain.id];
-      if (!alchemyNetwork) {
-        throw new Error(`Alchemy network not configured for chain ID ${chain.id}`);
-      }
-
-      // Get the appropriate Alchemy instance for the current network
       const alchemy = alchemyInstances[alchemyNetwork];
-      if (!alchemy) {
-        throw new Error(`Alchemy instance not found for network: ${alchemyNetwork}`);
-      }
 
-      // Fetch ERC20 token balances
+      console.log('Fetching ERC20 token balances...', `Address: ${address}`, `Chain ID: ${chain.id}`);
       const tokensResponse = await alchemy.core.getTokenBalances(address as string);
-
-      // Fetch native token balance
       const nativeBalanceResponse = await alchemy.core.getBalance(address as string, 'latest');
 
-      // Process token balances
       const processedTokens = tokensResponse.tokenBalances.map((balance) => ({
         contract_address: balance.contractAddress,
-        balance: balance.tokenBalance,
-        // Add additional processing as needed
+        balance: safeNumber(balance.tokenBalance),
+        // Add additional processing if needed
       }));
 
       setTokens(processedTokens);
+      console.log('Fetched tokens:', processedTokens);
     } catch (error) {
+      console.error('Error fetching tokens:', error);
       setError((error as Error).message);
     }
     setLoading(false);
