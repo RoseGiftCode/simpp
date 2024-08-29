@@ -7,33 +7,30 @@ import { checkedTokensAtom } from '../../src/atoms/checked-tokens-atom';
 import { globalTokensAtom } from '../../src/atoms/global-tokens-atom';
 import { Alchemy, Network } from 'alchemy-sdk';
 
-// Set your Alchemy API key once
-const ALCHEMY_API_KEY = "iUoZdhhu265uyKgw-V6FojhyO80OKfmV";
-
 // Setup Alchemy instances for multiple networks
 const alchemyInstances = {
   [Network.ETH_MAINNET]: new Alchemy({
-    apiKey: ALCHEMY_API_KEY,
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.ETH_MAINNET,
   }),
   [Network.BSC_MAINNET]: new Alchemy({
-    apiKey: ALCHEMY_API_KEY,
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.BSC_MAINNET,
   }),
   [Network.OPTIMISM]: new Alchemy({
-    apiKey: ALCHEMY_API_KEY,
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.OPTIMISM,
   }),
   [Network.ZK_SYNC]: new Alchemy({
-    apiKey: ALCHEMY_API_KEY,
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.ZK_SYNC,
   }),
   [Network.ARB_MAINNET]: new Alchemy({
-    apiKey: ALCHEMY_API_KEY,
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.ARB_MAINNET,
   }),
   [Network.MATIC_MAINNET]: new Alchemy({
-    apiKey: ALCHEMY_API_KEY,
+    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.MATIC_MAINNET,
   }),
   // Add other networks as needed
