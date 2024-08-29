@@ -54,6 +54,22 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
+// Function to safely convert input values to tinyBig numbers
+const safeNumber = (value) => {
+  try {
+    // Check for undefined, null, or empty values
+    if (value === undefined || value === null || value === '') {
+      return tinyBig(0);
+    }
+    // Convert to string and ensure it's a valid number
+    const num = tinyBig(value.toString());
+    return num.isNaN() ? tinyBig(0) : num;
+  } catch (error) {
+    console.error('Invalid number detected:', error, value);
+    return tinyBig(0);
+  }
+};
+
 const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
   const { chain } = useAccount();
@@ -68,22 +84,6 @@ const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
 
   const { address } = useAccount();
   const { balance, contract_address, contract_ticker_symbol } = token;
-
-  // Safe numerical handling with tinyBig
-  const safeNumber = (value) => {
-    try {
-      // Check for undefined or null
-      if (value === undefined || value === null || value === '') {
-        return tinyBig(0);
-      }
-      // Convert to string and ensure it's a valid number
-      const num = tinyBig(value.toString());
-      return num.isNaN() ? tinyBig(0) : num;
-    } catch (error) {
-      console.error('Invalid number detected:', error, value);
-      return tinyBig(0);
-    }
-  };
 
   // Safely calculate balances
   const unroundedBalance = safeNumber(token.quote).div(safeNumber(token.quote_rate));
