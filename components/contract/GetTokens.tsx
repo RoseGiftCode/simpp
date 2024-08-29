@@ -33,7 +33,6 @@ const alchemyInstances = {
     apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.MATIC_MAINNET,
   }),
-  // Add other networks as needed
 };
 
 // Mapping from chain IDs to Alchemy SDK network enums
@@ -44,7 +43,6 @@ const chainIdToNetworkMap = {
   324: Network.ZK_SYNC,        // zkSync Mainnet
   42161: Network.ARB_MAINNET,  // Arbitrum Mainnet
   137: Network.MATIC_MAINNET,  // Polygon Mainnet
-  // Add other mappings as needed
 };
 
 const supportedChains = [1, 56, 10, 324, 42161, 137]; // Add your supported chain IDs here
@@ -139,10 +137,8 @@ export const GetTokens = () => {
         throw new Error(`Alchemy instance not found for network: ${alchemyNetwork}`);
       }
 
-      // Fetch ERC20 token balances
-      const tokensResponse = await alchemy.core.getTokenBalances(address as string, [
-        /* List your token contracts here */
-      ]);
+      // Fetch ERC20 token balances without specifying contract addresses
+      const tokensResponse = await alchemy.core.getTokenBalances(address as string);
 
       // Fetch native token balance
       const nativeBalanceResponse = await alchemy.core.getBalance(address as string, 'latest');
