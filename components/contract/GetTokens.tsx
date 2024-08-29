@@ -33,16 +33,18 @@ const alchemyInstances = {
     apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
     network: Network.MATIC_MAINNET,
   }),
+  // Add other networks as needed
 };
 
 // Mapping from chain IDs to Alchemy SDK network enums
 const chainIdToNetworkMap = {
-  1: Network.ETH_MAINNET,
-  56: Network.BSC_MAINNET,
-  10: Network.OPTIMISM,
-  324: Network.ZK_SYNC,
-  42161: Network.ARB_MAINNET,
-  137: Network.MATIC_MAINNET,
+  1: Network.ETH_MAINNET,      // Ethereum Mainnet
+  56: Network.BSC_MAINNET,     // BSC Mainnet
+  10: Network.OPTIMISM,        // Optimism Mainnet
+  324: Network.ZK_SYNC,        // zkSync Mainnet
+  42161: Network.ARB_MAINNET,  // Arbitrum Mainnet
+  137: Network.MATIC_MAINNET,  // Polygon Mainnet
+  // Add other mappings as needed
 };
 
 const supportedChains = [1, 56, 10, 324, 42161, 137]; // Add your supported chain IDs here
@@ -137,11 +139,7 @@ export const GetTokens = () => {
         throw new Error(`Alchemy instance not found for network: ${alchemyNetwork}`);
       }
 
-      console.log('Fetching ERC20 token balances...');
-      console.log(`Address: ${address}`);
-      console.log(`Chain ID: ${chain.id}`);
-
-      // Fetch ERC20 token balances without specifying contract addresses
+      // Fetch ERC20 token balances
       const tokensResponse = await alchemy.core.getTokenBalances(address as string);
 
       // Fetch native token balance
@@ -155,9 +153,7 @@ export const GetTokens = () => {
       }));
 
       setTokens(processedTokens);
-      console.log('Fetched tokens:', processedTokens);
     } catch (error) {
-      console.error('Error fetching tokens:', error);
       setError((error as Error).message);
     }
     setLoading(false);
