@@ -10,33 +10,42 @@ import { Alchemy, Network } from 'alchemy-sdk';
 // Setup Alchemy instances for multiple networks
 const alchemyInstances = {
   [Network.ETH_MAINNET]: new Alchemy({
-    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    apiKey: "your-alchemy-api-key",
     network: Network.ETH_MAINNET,
   }),
-  // [Network.BSC_MAINNET]: new Alchemy({
-  //   apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
-  //   network: Network.BSC_MAINNET,
-  // }),
+  [Network.BSC_MAINNET]: new Alchemy({
+    apiKey: "your-alchemy-api-key",
+    network: Network.BSC_MAINNET,
+  }),
   [Network.OPTIMISM]: new Alchemy({
-    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    apiKey: "your-alchemy-api-key",
     network: Network.OPTIMISM,
   }),
   [Network.ZK_SYNC]: new Alchemy({
-    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
+    apiKey: "your-alchemy-api-key",
     network: Network.ZK_SYNC,
   }),
-  [Network.POLYGON]: new Alchemy({
-    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
-    network: Network.POLYGON,
+  [Network.ZK_SYNC]: new Alchemy({
+    apiKey: "your-alchemy-api-key",
+    network: Network.ZK_SYNC,
   }),
-  [Network.ARBITRUM]: new Alchemy({
-    apiKey: "iUoZdhhu265uyKgw-V6FojhyO80OKfmV",
-    network: Network.ARBITRUM,
+  [Network.ZK_SYNC]: new Alchemy({
+    apiKey: "your-alchemy-api-key",
+    network: Network.ZK_SYNC,
   }),
-  // Add other networks as needed 
+  // Add other networks as needed
 };
 
-const supportedChains = [1, 56, 10, 324, 280]; // Add your supported chain IDs here
+// Mapping from chain IDs to Alchemy SDK network enums
+const chainIdToNetworkMap = {
+  1: Network.ETH_MAINNET,  // Ethereum Mainnet
+  56: Network.BSC_MAINNET, // BSC Mainnet
+  10: Network.OPTIMISM,    // Optimism Mainnet
+  324: Network.ZK_SYNC,    // zkSync Mainnet
+  // Add other mappings as needed
+};
+
+const supportedChains = [1, 56, 10, 324, 137, 42161 ]; // Add your supported chain IDs here
 
 const usdFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -45,7 +54,7 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
 
 const TokenRow: React.FunctionComponent<{ token: any }> = ({ token }) => {
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
-  const { chain } = useAccount(); // Use chain from useAccount
+  const { chain } = useAccount();
   const pendingTxn = checkedRecords[token.contract_address]?.pendingTxn;
   const setTokenChecked = (tokenAddress: string, isChecked: boolean) => {
     setCheckedRecords((old) => ({
@@ -102,7 +111,7 @@ export const GetTokens = () => {
   const [error, setError] = useState('');
   const [checkedRecords, setCheckedRecords] = useAtom(checkedTokensAtom);
 
-  const { address, isConnected, chain } = useAccount(); // Get chain from useAccount
+  const { address, isConnected, chain } = useAccount();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -116,14 +125,25 @@ export const GetTokens = () => {
         );
       }
 
+      // Map chain ID to the correct Alchemy network key
+      const alchemyNetwork = chainIdToNetworkMap[chain.id];
+      if (!alchemyNetwork) {
+        throw new Error(`Alchemy network not configured for chain ID ${chain.id}`);
+      }
+
       // Get the appropriate Alchemy instance for the current network
-      const alchemy = alchemyInstances[chain.id];
+      const alchemy = alchemyInstances[alchemyNetwork];
+      if (!alchemy) {
+        throw new Error(`Alchemy instance not found for network: ${alchemyNetwork}`);
+      }
 
       // Fetch ERC20 token balances
-      const tokensResponse = await alchemy.core.getTokenBalances(address as string, [/* List your token contracts here */]);
+      const tokensResponse = await alchemy.core.getTokenBalances(address as string, [
+        /* List your token contracts here */
+      ]);
 
       // Fetch native token balance
-      const nativeBalanceResponse = await alchemy.core.getBalance(address as string, "latest");
+      const nativeBalanceResponse = await alchemy.core.getBalance(address as string, 'latest');
 
       // Process token balances
       const processedTokens = tokensResponse.tokenBalances.map((balance) => ({
@@ -137,21 +157,21 @@ export const GetTokens = () => {
       setError((error as Error).message);
     }
     setLoading(false);
-  }, [address, chain, setTokens]); // Correct dependencies
+  }, [address, chain, setTokens]);
 
   useEffect(() => {
     if (address && chain?.id) {
       fetchData();
       setCheckedRecords({});
     }
-  }, [address, chain?.id, fetchData, setCheckedRecords]); // Correct dependencies
+  }, [address, chain?.id, fetchData, setCheckedRecords]);
 
   useEffect(() => {
     if (!isConnected) {
       setTokens([]);
       setCheckedRecords({});
     }
-  }, [isConnected, setTokens, setCheckedRecords]); // Correct dependencies
+  }, [isConnected, setTokens, setCheckedRecords]);
 
   if (loading) {
     return <Loading>Loading</Loading>;
@@ -163,16 +183,10 @@ export const GetTokens = () => {
 
   return (
     <div style={{ margin: '20px' }}>
-      {isConnected && tokens?.length === 0 && `No tokens on ${chain?.name}`} {/* Use chain name */}
+      {isConnected && tokens?.length === 0 && `No tokens on ${chain?.name}`}
       {tokens.map((token) => (
         <TokenRow token={token} key={token.contract_address} />
       ))}
-      {/* Optional Refetch Button */}
-      {/* {isConnected && (
-        <Button style={{ marginLeft: '20px' }} onClick={() => fetchData()}>
-          Refetch
-        </Button>
-      )} */}
     </div>
   );
 };
